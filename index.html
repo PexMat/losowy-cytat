@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Losowy cytat – Ultra Premium</title>
+
+<style>
+:root {
+    --accent: #1976d2;
+    --bg1: #2196f3;
+    --bg2: #e91e63;
+    --text: #000;
+    --card: rgba(255,255,255,0.9);
+}
+
+body.dark {
+    --bg1: #0f2027;
+    --bg2: #203a43;
+    --text: #fff;
+    --card: rgba(30,30,30,0.9);
+}
+
+body {
+    margin:0;
+    height:100vh;
+    font-family:"Segoe UI",sans-serif;
+    background: linear-gradient(-45deg,var(--bg1),var(--bg2),#673ab7,#03a9f4);
+    background-size:400% 400%;
+    animation: gradient 15s ease infinite;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:var(--text);
+    transition:0.5s;
+}
+
+@keyframes gradient {
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+.container {
+    background:var(--card);
+    backdrop-filter:blur(15px);
+    border-radius:20px;
+    padding:40px;
+    width:90%;
+    max-width:600px;
+    text-align:center;
+    box-shadow:0 20px 40px rgba(0,0,0,0.3);
+}
+
+.quote-box {
+    opacity:0;
+    transform:translateY(20px);
+    transition:0.6s ease;
+}
+
+.quote-box.show {
+    opacity:1;
+    transform:translateY(0);
+}
+
+#quote { font-size:22px; font-style:italic; }
+#author { margin-top:10px; font-weight:bold; opacity:0.8; }
+
+.buttons {
+    margin-top:25px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+
+button {
+    padding:10px 20px;
+    border-radius:30px;
+    border:none;
+    cursor:pointer;
+    background:var(--accent);
+    color:white;
+    transition:0.3s;
+}
+
+button:hover { transform:scale(1.05); }
+
+.counter {
+    margin-top:15px;
+    font-size:14px;
+    opacity:0.8;
+}
+
+footer {
+    margin-top:25px;
+    font-size:13px;
+}
+footer a {
+    color:var(--accent);
+    font-weight:bold;
+    text-decoration:none;
+}
+footer a:hover { text-decoration:underline; }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎲 Losowy cytat</h1>
+
+    <div id="quoteBox" class="quote-box">
+        <p id="quote"></p>
+        <p id="author"></p>
+    </div>
+
+    <div class="buttons">
+        <button onclick="losujCytat()">Nowy cytat</button>
+        <button onclick="udostepnij()">📤 Udostępnij</button>
+        <button onclick="toggleDark()">🌙 Tryb nocny</button>
+    </div>
+
+    <div class="counter">
+        🏅 Wylosowano cytatów: <span id="count">0</span>
+    </div>
+
+    <footer>
+        Strona stworzona przez <strong>Mateusza</strong> © 2026<br>
+        <a href="https://lo2.olesnica.pl/" target="_blank">2 LO w Oleśnicy</a>
+    </footer>
+</div>
+
+<script>
+
+const cytaty = [
+{tekst:"Wyobraźnia jest ważniejsza od wiedzy.",autor:"Albert Einstein"},
+{tekst:"Wiem, że nic nie wiem.",autor:"Sokrates"},
+{tekst:"Sukces to przechodzenie od porażki do porażki bez utraty entuzjazmu.",autor:"Winston Churchill"},
+{tekst:"Nie licz dni, spraw, by dni się liczyły.",autor:"Muhammad Ali"},
+{tekst:"Człowiek, który przeniósł górę, zaczął od przeniesienia małych kamieni.",autor:"Konfucjusz"},
+{tekst:"W prostocie tkwi najwyższe wyrafinowanie.",autor:"Leonardo da Vinci"},
+{tekst:"Najlepszym sposobem przewidywania przyszłości jest jej tworzenie.",autor:"Peter Drucker"},
+{tekst:"Największą chwałą w życiu nie jest to, że nigdy nie upadamy, lecz to, że podnosimy się po każdym upadku.",autor:"Nelson Mandela"},
+{tekst:"Ci, którzy są wystarczająco szaleni, by myśleć, że mogą zmienić świat, zmieniają go.",autor:"Steve Jobs"},
+{tekst:"Dyscyplina jest mostem między celami a osiągnięciami.",autor:"Jim Rohn"},
+{tekst:"Czas to pieniądz.",autor:"Benjamin Franklin"},
+{tekst:"Myślę, więc jestem.",autor:"René Descartes"},
+{tekst:"Bądź zmianą, którą pragniesz ujrzeć w świecie.",autor:"Mahatma Gandhi"},
+{tekst:"Jedyną rzeczą, której musimy się bać, jest sam strach.",autor:"Franklin D. Roosevelt"},
+{tekst:"To, co nas nie zabije, czyni nas silniejszymi.",autor:"Friedrich Nietzsche"},
+{tekst:"Szczęście sprzyja odważnym.",autor:"Wergiliusz"},
+{tekst:"Prostota jest kluczem do prawdziwej elegancji.",autor:"Coco Chanel"},
+{tekst:"Niemożliwe nie istnieje.",autor:"Muhammad Ali"},
+{tekst:"Marzenia się nie spełniają – marzenia się spełnia.",autor:"Walt Disney"},
+{tekst:"Najlepszą zemstą jest ogromny sukces.",autor:"Frank Sinatra"},
+{tekst:"Każdy dzień jest nową szansą.",autor:"Oprah Winfrey"},
+{tekst:"Nie poddawaj się.",autor:"Michael Jordan"},
+{tekst:"Wiedza to potęga.",autor:"Francis Bacon"},
+{tekst:"Zwycięstwo należy do najbardziej wytrwałych.",autor:"Napoleon Bonaparte"},
+{tekst:"Wytrwałość to matka sukcesu.",autor:"Platon"},
+{tekst:"Odwaga to łaska pod presją.",autor:"Ernest Hemingway"},
+{tekst:"Czyny mówią więcej niż słowa.",autor:"Abraham Lincoln"},
+{tekst:"Wszystko jest możliwe.",autor:"Usain Bolt"},
+{tekst:"Ucz się tak, jakbyś miał żyć wiecznie.",autor:"Mahatma Gandhi"},
+{tekst:"Czasami przegrywasz, czasami się uczysz.",autor:"John C. Maxwell"},
+{tekst:"Droga tysiąca mil zaczyna się od jednego kroku.",autor:"Laozi"},
+{tekst:"Sekretem sukcesu jest rozpoczęcie.",autor:"Mark Twain"},
+{tekst:"Zawsze wydaje się niemożliwe, dopóki nie zostanie zrobione.",autor:"Nelson Mandela"},
+{tekst:"Pasja jest energią.",autor:"Oprah Winfrey"},
+{tekst:"Błędy są dowodem, że próbujesz.",autor:"Jennifer Lim"},
+{tekst:"Sukces wymaga poświęcenia.",autor:"Cristiano Ronaldo"},
+{tekst:"Życie jest piękne.",autor:"Audrey Hepburn"},
+{tekst:"Nie przestawaj marzyć.",autor:"Malala Yousafzai"},
+{tekst:"Odwaga zaczyna się od pokazania się.",autor:"Brené Brown"},
+{tekst:"Zwycięzcy nigdy się nie poddają.",autor:"Vince Lombardi"},
+{tekst:"Największym ryzykiem jest nie podejmować żadnego ryzyka.",autor:"Mark Zuckerberg"},
+{tekst:"Każdy mistrz był kiedyś początkującym.",autor:"Robin Sharma"},
+{tekst:"Wielkie rzeczy nigdy nie pochodzą ze strefy komfortu.",autor:"Neil Strauss"},
+{tekst:"Wiedza bez działania jest bezużyteczna.",autor:"Arystoteles"},
+{tekst:"Sukces to decyzja.",autor:"Tony Robbins"},
+{tekst:"Przyszłość zależy od tego, co robisz dzisiaj.",autor:"Mahatma Gandhi"},
+{tekst:"Cierpliwość jest gorzka, ale jej owoc jest słodki.",autor:"Jean-Jacques Rousseau"},
+{tekst:"Wszystko, czego potrzebujesz, jest już w Tobie.",autor:"Rumi"},
+{tekst:"Szczęście to wybór.",autor:"Dalajlama"},
+{tekst:"Wielkość zaczyna się od decyzji, by spróbować.",autor:"John F. Kennedy"}
+];
+
+const kolory=[
+["#2196f3","#e91e63"],
+["#673ab7","#03a9f4"],
+["#009688","#8bc34a"],
+["#ff5722","#ffc107"]
+];
+
+let licznik = localStorage.getItem("cytatCount") || 0;
+document.getElementById("count").innerText = licznik;
+
+function losujCytat(){
+    const box=document.getElementById("quoteBox");
+    box.classList.remove("show");
+
+    setTimeout(()=>{
+        const c=cytaty[Math.floor(Math.random()*cytaty.length)];
+        document.getElementById("quote").innerText="„"+c.tekst+"”";
+        document.getElementById("author").innerText="— "+c.autor;
+
+        const k=kolory[Math.floor(Math.random()*kolory.length)];
+        document.documentElement.style.setProperty("--bg1",k[0]);
+        document.documentElement.style.setProperty("--bg2",k[1]);
+        document.documentElement.style.setProperty("--accent",k[0]);
+
+        licznik++;
+        localStorage.setItem("cytatCount",licznik);
+        document.getElementById("count").innerText=licznik;
+
+        dzwiek();
+        box.classList.add("show");
+    },300);
+}
+
+function toggleDark(){
+    document.body.classList.toggle("dark");
+}
+
+function udostepnij(){
+    const tekst=document.getElementById("quote").innerText+" "+document.getElementById("author").innerText;
+    navigator.clipboard.writeText(tekst);
+    alert("Cytat skopiowany do schowka!");
+}
+
+function dzwiek(){
+    const audio=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+    audio.volume=0.2;
+    audio.play();
+}
+
+window.onload=losujCytat;
+
+</script>
+
+</body>
+</html>
